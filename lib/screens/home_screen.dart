@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
           )
         ]),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(25),
           child: BottomNavigationBar(
             currentIndex: _currentIndex,
             onTap: onTap,
