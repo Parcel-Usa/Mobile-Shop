@@ -18,72 +18,63 @@ class _ShopScreenState extends State<ShopScreen> {
     return Scaffold(
       body: Column(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Color(0xffe6e8d2).withOpacity(0.5),
-            ),
-            height: 350,
-            child: ListWheelScrollView(
-              itemExtent: 200,
-              offAxisFraction: -1.5,
-              diameterRatio: 6,
-              physics: FixedExtentScrollPhysics(),
-              onSelectedItemChanged: (index) => {
-                print(index)
-              },
-              children: List.generate(categories.length, (index) =>
-                  Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.only(top: 20, left: 20),
-                        alignment: Alignment.bottomLeft,
-                        margin: EdgeInsets.all(20),
-                        width: 350,
-                        child: Column(
-                          children: [
-                            Text(categories[index], style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),)
-                          ],
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              spreadRadius: 5,
-                              blurRadius: 7,
-                              offset: Offset(1, 3), // changes position of shadow
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        width: 150,
-                        height: 220,
-                        child: Image(image: categories_pictures[index],),
-                      )
-                    ],
-                  ))
+          SizedBox(
+            height: 50,
+          ),
+          Center(
+            child: Text('Магазин', style: TextStyle(fontFamily: 'Merriweather', fontSize: 35)),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          SizedBox(
+            height: 25,
+            child: ListView.builder(
+                itemCount: categories.length,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index) => BuildCategory(index, context)
             ),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: TextField(
-              decoration: InputDecoration(
-                  filled: true,
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide.none
-                  ),
-                hintText: 'Поиск',
-                suffixIcon: Icon(Icons.search),
-                suffixIconColor: Color(0xffb95144)
-              ),
+          SizedBox(
+            height: 30,
+          ),
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+              itemBuilder: (context, index) => ItemCard(index),
             ),
           )
         ],
-      )
+      ),
+    );
+  }
+
+  Widget ItemCard(int index) {
+    return Container();
+  }
+
+  Widget BuildCategory(int index, context) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedIndex = index;
+        });
+      },
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.1),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(categories[index], style: TextStyle(fontWeight: FontWeight.bold, color: selectedIndex == index ? Color(0xffa6bead) : Colors.grey, fontSize: 15),),
+            Container(
+              padding: EdgeInsets.only(top: 15),
+              height: 2,
+              width: 40,
+              color: selectedIndex == index ? Color(0xffb95144) : Colors.transparent,
+            )
+          ],
+        ),
+      ),
     );
   }
 }
