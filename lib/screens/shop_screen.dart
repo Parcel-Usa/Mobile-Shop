@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'dart:convert';
 
 class ShopScreen extends StatefulWidget {
 
@@ -8,10 +10,40 @@ class ShopScreen extends StatefulWidget {
 
 class _ShopScreenState extends State<ShopScreen> {
 
+  List<String> orders_description = [];
+  List<String> orders_name = [];
+  List<String> orders_price = [];
+  List<String> orders_categories = [];
+  List<List<String>> orders_feautes = [];
+
   List<String> categories = ['Кроссовки', 'Одежда', 'Очки'];
   List<AssetImage> categories_pictures = [AssetImage('assets/test_pic.png'), AssetImage('assets/test_pic2.png'), AssetImage('assets/test_pic1.png')];
 
   int selectedIndex = 0;
+
+  final dio = Dio();
+
+  @override
+  void initState() {
+    super.initState();
+    get_data();
+  }
+
+  void get_data() async {
+    final response = await dio.get("http://10.100.20.21/get_order_info");
+    List<String> list = response.data.toString().split('\n');
+    for (int i = 0; i < list.length - 1; i += 1) {
+      list[i] = list[i].substring(0, list[i].length-1);
+      print(utf8.decode(base64.decode(list[i])));
+      if (list[i] == '&') {
+
+      } else if (list[i] == '|') {
+
+      } else {
+
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
