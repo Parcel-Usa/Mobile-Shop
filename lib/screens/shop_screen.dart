@@ -1,8 +1,9 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'dart:convert';
+import 'package:parcel_usa/models/product.dart';
+import 'details_screen.dart';
+
 
 class ShopScreen extends StatefulWidget {
 
@@ -12,20 +13,19 @@ class ShopScreen extends StatefulWidget {
 
 class _ShopScreenState extends State<ShopScreen> {
 
-  List<String> orders_description = [];
-  List<String> orders_name = [];
-  List<String> orders_price = [];
-  List<String> orders_categories = [];
-  List<List<String>> orders_feautes = [];
-  List<List<String>> orders_feautes_values = [];
-  List<List<String>> orderes_pictures = [];
+  List<Product> products = [];
+
   int order_length = 0;
   List<int> orders_in_category = [];
 
   List<String> categories = [];
-  List<AssetImage> categories_pictures = [AssetImage('assets/test_pic.png'), AssetImage('assets/test_pic2.png'), AssetImage('assets/test_pic1.png')];
+  Set<String> ct = {};
 
   int selectedIndex = 0;
+
+  String category = '', name = '', description = '';
+  int price = 0;
+  List<String> images = [], features = [], features_values = [];
 
   final dio = Dio();
 
@@ -48,39 +48,45 @@ class _ShopScreenState extends State<ShopScreen> {
         j = 0;
         order += 1;
         flag_url = false;
+        products.add(Product(category: category, name: name, description: description, price: price, images: images, features: features, features_values: features_values));
+        category = '';
+        name = '';
+        description = '';
+        price = 0;
+        images = [];
+        features = [];
+        features_values = [];
       } else {
         if (!flag_url) {
           list[i] = list[i].substring(1, list[i].length-2);
           String text = utf8.decode(base64.decode(list[i]));
           if (j % 2 == 0 && j >= 4) {
-            orders_feautes.add([]);
-            orders_feautes[order].add(text);
+            features.add(text);
           } else if (j % 2 == 1 && j >= 4) {
-            orders_feautes_values.add([]);
-            orders_feautes_values[order].add(text);
+            features_values.add(text);
           } else if (j == 0) {
-            orders_categories.add(text);
+            category = text;
+            ct.add(text);
           } else if (j == 1) {
-            orders_name.add(text);
+            name = text;
           } else if (j == 2) {
-            orders_description.add(text);
+            description = text;
           }
           else if (j == 3) {
-            orders_price.add(text);
+            price = int.parse(text);
           }
           j += 1;
         } else {
           list[i] = list[i].substring(0, list[i].length-1);
-          orderes_pictures.add([]);
-          orderes_pictures[order].add(list[i]);
+          images.add(list[i]);
         }
       }
     }
+    categories = ct.toList();
     order_length = order;
     setState(() {
-      categories = (orders_categories.toSet()).toList();
       for (int i = 0; i < order_length; i++) {
-        if (categories[selectedIndex] == orders_categories[i]) {
+        if (categories[selectedIndex] == products[i].category) {
           orders_in_category.add(i);
         }
       }
@@ -129,9 +135,10 @@ class _ShopScreenState extends State<ShopScreen> {
 
   Widget ItemCard(int index) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => DetailsScreen(product: products[orders_in_category[index]]))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Container(
@@ -139,22 +146,29 @@ class _ShopScreenState extends State<ShopScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16)
               ),
-              child: Hero(
-                tag: '₽' + orders_name[orders_in_category[index]],
-                child: Image.network(orderes_pictures[orders_in_category[index]][0]),
-              ),
+              child: Image.network(products[orders_in_category[index]].images[0])
             ),
           ),
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 10),
+            padding: EdgeInsets.symmetric(vertical: 2),
             child: Text(
-              orders_name[orders_in_category[index]],
+              products[orders_in_category[index]].name,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          Text(
-            orders_price[orders_in_category[index]],
-            style: TextStyle(fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '₽ ' + products[orders_in_category[index]].price.toString(),
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              IconButton(
+                icon: Icon(Icons.add),
+                color: Colors.black,
+                onPressed: () {},
+              ),
+            ],
           )
         ],
       ),
@@ -168,7 +182,7 @@ class _ShopScreenState extends State<ShopScreen> {
           selectedIndex = index;
           orders_in_category.clear();
           for (int i = 0; i < order_length; i++) {
-            if (categories[selectedIndex] == orders_categories[i]) {
+            if (categories[selectedIndex] == products[i].category) {
               orders_in_category.add(i);
             }
           }
